@@ -1,0 +1,5 @@
+/PDFs/AS17_CM.PDF filter=lfs diff=lfs merge=lfs -text
+/PDFs/AS17_LM.PDF filter=lfs diff=lfs merge=lfs -text
+/PDFs/AS17_PAC.PDF filter=lfs diff=lfs merge=lfs -text
+/PDFs/AS17_PAO.PDF filter=lfs diff=lfs merge=lfs -text
+/PDFs/AS17_TEC.PDF filter=lfs diff=lfs merge=lfs -text
