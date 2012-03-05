@@ -29,3 +29,4 @@
 /Abbyy[[:space:]]Image[[:space:]]OCR/A17-501-1000/docdata/synCache.dat filter=lfs diff=lfs merge=lfs -text
 /Abbyy[[:space:]]Image[[:space:]]OCR/A17-1001-2460/data/layout.dat filter=lfs diff=lfs merge=lfs -text
 /Abbyy[[:space:]]Image[[:space:]]OCR/A17-1001-2460/data/textStorage.dat filter=lfs diff=lfs merge=lfs -text
+/Abbyy[[:space:]]Image[[:space:]]OCR/A17-1001-2460/data/textVariantsStorage.dat filter=lfs diff=lfs merge=lfs -text
