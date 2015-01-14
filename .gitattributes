@@ -51,3 +51,8 @@
 /Abbyy[[:space:]]Image[[:space:]]OCR/A17[[:space:]]Mission[[:space:]]Report/data/textStorage.dat filter=lfs diff=lfs merge=lfs -text
 /Abbyy[[:space:]]Image[[:space:]]OCR/A17[[:space:]]Mission[[:space:]]Report/data/textVariantsStorage.dat filter=lfs diff=lfs merge=lfs -text
 /Abbyy[[:space:]]Image[[:space:]]OCR/A17[[:space:]]Mission[[:space:]]Report/{9DB4BF9F-C3D0-44A3-85CA-F0DE58D5B60C}.pdf filter=lfs diff=lfs merge=lfs -text
+/OCR/_Source_Images/PDFs/AS17_CM.PDF filter=lfs diff=lfs merge=lfs -text
+/OCR/_Source_Images/PDFs/AS17_LM.PDF filter=lfs diff=lfs merge=lfs -text
+/OCR/_Source_Images/PDFs/AS17_PAC.PDF filter=lfs diff=lfs merge=lfs -text
+/OCR/_Source_Images/PDFs/AS17_PAO.PDF filter=lfs diff=lfs merge=lfs -text
+/OCR/_Source_Images/PDFs/AS17_TEC.PDF filter=lfs diff=lfs merge=lfs -text
