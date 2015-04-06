@@ -2,14 +2,14 @@ __author__ = 'Feist'
 import csv
 from quik import FileLoader
 
-output_TOC_file_name_and_path = "./output/TOC.html"
+output_TOC_file_name_and_path = "./_webroot/TOC.html"
 output_TOC_file = open(output_TOC_file_name_and_path, "w")
 output_TOC_file.write("")
 output_TOC_file.close()
 
 output_TOC_file = open(output_TOC_file_name_and_path, "a")
 
-output_TOC_index_file_name_and_path = "./output/TOCindex.csv"
+output_TOC_index_file_name_and_path = "./_webroot/TOCindex.csv"
 output_TOC_index_file = open(output_TOC_index_file_name_and_path, "w")
 output_TOC_index_file.write("")
 output_TOC_index_file.close()
@@ -49,14 +49,14 @@ output_TOC_file.write(template.render({'datarow': 0}, loader=template_loader).en
 
 
 ## -------------------- Write Utterance HTML
-output_utterance_file_name_and_path = "./output/allUtterances.html"
+output_utterance_file_name_and_path = "./_webroot/allUtterances.html"
 output_utterance_file = open(output_utterance_file_name_and_path, "w")
 output_utterance_file.write("")
 output_utterance_file.close()
 
 output_utterance_file = open(output_utterance_file_name_and_path, "a")
 
-output_utterance_index_file_name_and_path = "./output/utteranceIndex.csv"
+output_utterance_index_file_name_and_path = "./_webroot/utteranceIndex.csv"
 output_utterance_index_file = open(output_utterance_index_file_name_and_path, "w")
 output_utterance_index_file.write("")
 output_utterance_index_file.close()
@@ -76,8 +76,16 @@ for utterance_row in utterance_reader:
     timeid = "timeid" + utterance_row[1].translate(None, ":")
     timeline_index_id = utterance_row[1].translate(None, ":")
     if utterance_row[1] != "": #if not a TAPE change or title row
+        words_modified = utterance_row[3].replace("O2", "O<sub>2</sub>")
+        words_modified = words_modified.replace("H2", "H<sub>2</sub>")
+        who_modified = utterance_row[2].replace("CDR", "Cernan")
+        who_modified = who_modified.replace("CMP", "Evans")
+        who_modified = who_modified.replace("LMP", "Schmitt")
+        attribution_modified = utterance_row[0]
+
         template = template_loader.load_template('template_timelineitem.html')
-        output_utterance_file.write(template.render({'timeid': timeid, 'timestamp': utterance_row[1], 'who': utterance_row[2], 'words': utterance_row[3]}, loader=template_loader).encode('utf-8'))
+        output_utterance_file.write(template.render({'timeid': timeid, 'timestamp': utterance_row[1], 'who': who_modified, 'words': words_modified, 'attribution': attribution_modified}, loader=template_loader))
+
         timeline_index_template = loader.load_template('template_timeline_index.html')
         output_utterance_index_file.write(timeline_index_template.render({'timeline_index_id': timeline_index_id}, loader=loader).encode('utf-8'))
 
