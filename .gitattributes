@@ -127,3 +127,4 @@
 /HTML_Scripts/output/allUtterances.html filter=lfs diff=lfs merge=lfs -text
 /_Website/_webroot/allUtterances.html filter=lfs diff=lfs merge=lfs -text
 /_Website/_webroot/utterancePage.html filter=lfs diff=lfs merge=lfs -text
+/_Website/assets/Apollo_17-insignia.png filter=lfs diff=lfs merge=lfs -text
