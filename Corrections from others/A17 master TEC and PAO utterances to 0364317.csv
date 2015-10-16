@@ -167,7 +167,7 @@
 |000:02:28|LMP|Okay, it's 19.
 |000:02:30|CDR|Now at 41. It's 41. ... seconds
 |000:02:32|CDR|3 1/2 gs.
-|000:02:33|PAO|Crew will experience maximum G forces of about 4 Gs at shutdown.
+|000:02:34|PAO|Crew will experience maximum G forces of about 4 Gs at shutdown.
 |000:02:35|CDR|Hold on!
 |000:02:37|CDR|Okay. 5 seconds. ... gs. 4 gs.
 |000:02:40|PAO|Coming up on first stage shutdown. And we've had shutdown on time on the first stage.
@@ -230,20 +230,20 @@
 |000:05:14|CDR|You guys believe me about that S-I staging now?
 |000:05:16|CMP|(laughter) I can't -
 |000:05:19|LMP|I can't believe how smooth this is.
-|000:05:20|CMP|I can't - I can't believe how smooth this is.
+|000:05:19|CMP|I can't - I can't believe how smooth this is.
 |000:05:21|CDR|Okay, let's keep this mother burning. We've got a long way to go. We're only half way there.
 |000:05:24|CC|17, Houston. Your times are nominal. Level sense arm at 8 plus 36; S-II shutdown at 9 plus 20. Nominal times.
 |000:05:33|CDR|8 plus 36 and 9 plus 20. Roger.
 |000:05:36|LMP|Coming up on gimbal motors, Geno.
 |000:05:37|CDR|Okay. ...
-|000:05:38|PAO|CAPCOM Robert Obermeyer, advising Gene Cernan and the crew aboard Apollo 17 the second stage shutdown at about 9 minutes 20 seconds elapsed time. That shutdown about 3 and a half minutes from now.
+|000:05:39|PAO|CAPCOM Robert Obermeyer, advising Gene Cernan and the crew aboard Apollo 17 the second stage shutdown at about 9 minutes 20 seconds elapsed time. That shutdown about 3 and a half minutes from now.
 |000:05:52|CDR|I forget anything yet, Ron?
 |000:05:54|CMP|Nope.
 |000:05:54|CDR|Okay, we're still MODE 2, coming up on -
 |000:05:56|CC|Standby for S-IVB to COI capability.
 |000:05:59|CC|MARK. S-IVB to COI capability.
 |000:06:01|CDR|Roger. S-IVB to COI. We're GO at 6.
-|000:06:03|CDR|Good. Gimbal motors?
+|000:06:04|CDR|Good. Gimbal motors?
 |000:06:04|CMP|Go ahead.
 |000:06:05|CC|Roger, Geno.
 |000:06:06|CDR|PITCH 1.
@@ -303,8 +303,8 @@
 |000:08:21|CC|17, Houston. You are GO for staging.
 |000:08:24|CDR|Thank you, Bob. We are GO for staging up here.
 |000:08:29|CDR|A little over a G.
-|000:08:31|LMP|There's a little chug.
-|000:08:32|PAO|Staging now less than 1 minute.
+|000:08:32|LMP|There's a little chug.
+|000:08:34|PAO|Staging now less than 1 minute.
 |000:08:34|CDR|Okay, we've got to get through this one. Coming in, we're level sense arm now.
 |000:08:40|CC|You have level sense arm this time, Gene.
 |000:08:42|CDR|Roger, Bob. Level sense arm.
@@ -1865,7 +1865,7 @@
 |017:45:48|LMP|Okay, but those were associated with the accumulator as I recall. Yes, the random ones is the ones I was interested in. They just seemed to stop. Of course, we haven't been moving switches on 2, but we were getting them without doing that also.
 |017:46:13|CMP|Okay, there's the old star. Works just like the simulator; you can't see the star when it goes down in the Earth (laughter).
 |017:46:21|CC|It's still being worked on, Jack. Though we don't have any real concrete story to give you on it yet.
-|017:46:31|LMP|Okay, it seemed to be pretty quiet last night, so that's the only problem.
+|017:46:31|LMP|Okay, it seemed to be pretty quiet last night, so that's the only problem. 
 |017:46:37|CMP|Okay. Gene, you want to give me CMC FREE?
 |017:46:40|CMP|Okay.
 |017:49:45|CMP|Let's see. 379, okay. That's not too bad. There it is; ENTER. Release 23; ENTER.
@@ -1917,7 +1917,7 @@
 |018:15:14|CDR|Stu who?
 |018:15:19|CC|He said after that comment he has no comment.
 |018:15:23|CDR|(Laughter) I'm sorry, Stu.
-|018:15:28|LMP|I can't believe that; Stu always has something to add.
+|018:15:28|LMP|I can't believe that; Stu always has something to add.  
 |018:15:32|CMP|(Singing) Houston, in case you just noticed, I forgot the VERB 67 until just now. Although, in reality, all we're trying to do here is get a DELTA-H measurement anyhow. And, Houston, do you have any feel yet for what the DELTA-H is - line has been?
 |018:15:59|CC|Stand by, Ron.
 |018:16:14|CC|Ron, this is Houston. We're not going to be able to give you a handle on the Delta H until we have a chance to take all the data and reduce it and work it around a little.
@@ -1975,7 +1975,7 @@
 |019:01:30|CDR|Wish us luck. Wish us luck.
 |019:01:38|CMP|Hey, that really goes out!
 |019:01:52|CC|Can you give us P00 and ACCEPT? And we'll give you a new state vector.
-|019:02:01|CMP|Probably need one after all those ...
+|019:02:01|CMP|Probably need one after all those ... 
 |019:02:05|LMP|Okay, you've got P00 and ACCEPT.
 |019:02:09|CC|Roger.
 |019:04:11|CC|Okay, the vector's in there. It's your computer.
@@ -2258,7 +2258,7 @@
 |021:44:55|CC|Jack. Surgeon over here says you got a 120 on the heartbeat for a moment there - 122 right now. Okay, 130, Jack. 130. 140 , Jack, 140.
 |021:46:16|PAO|The numbers reported to Jack Schmitt by CAPCOM are his heart rate. And you heard him report a heart rate up to about 140 beats per minute as Jack is apparently continuing to exercise vigorously with the onboard exerciser. This is aimed among other things at keeping the cardio vascular system which tends to get lazy in zero gravity in condition.
 |021:47:25|CC|17, we've got a serious one here. You might be interested. All that exercise banging around in there has destratified tank 3 O2, so it stirred it all up good.
-|021:47:38|CDR|Yes, glad we brought him along then. We found some use for him.
+|021:47:38|CDR|Yes, glad we brought him along then. We found some use for him. 
 |021:47:44|LMP|Once an EECOM, always an EECOM. I have to cre - create my own G in order to run in place.
 |021:47:55|CC|Roger.
 |021:48:01|LMP|How high up did the heart rate get, Bob?
@@ -2777,7 +2777,7 @@
 |033:48:03|CC|Okay, Jack. We got all that up to Argentina, then the OMNI switch kind of cut you off.
 |033:48:59|CC|Jack, we got the - at least the first part of your weather report fine up through the clouds in northern Argentina, and then the switch in OMNIs cut you out.
 |033:49:12|LMP|Okay, that was about it, Gordy. That's - I'll talk to you some more later about it. I guess the main thing I need now is - are your consumables.
-|033:49:26|CC|Okay. By the way, you were looking back from more than halfway to the Moon. You're about 125,000 out now. On the consumables, the RCS is running at 1.3 percent over the Flight Plan line. On the O2 tanks 2 and 3 are right on the lines, and tank 1 is about 4 percent below the line. But it's been there all the way since launch, that same bias on tank 1. On the hydrogen: tanks 1 and 3 are right on the lines, tank 2 is about 3 percent above the line. All in all, you're looking real good consumablewise.
+|033:49:26|CC|Okay. By the way, you were looking back from more than halfway to the Moon. You're about 125,000 out now. On the consumables, the RCS is running at 1.3 percent over the Flight Plan line. On the O2 tanks 2 and 3 are right on the lines, and tank 1 is about 4 percent below the line. But it's been there all the way since launch, that same bias on tank 1. On the hydrogen: tanks 1 and 3 are right on the lines, tank 2 is about 3 percent above the line. All in all, you're looking real good consumable wise.
 |033:50:21|LMP|Okay. That's hardly worth writing down, I guess.
 ||||Tape 25/5|Page 175
 |033:50:26|CMP|That's the way we like to see it.
@@ -11963,7 +11963,7 @@
 |121:35:59|CDR|May's the month this year.
 |121:35:59|LMP|May - that's right.
 |121:36:01|CDR|May is the year, the month.
-|121:36:03|LMP|(Singing) When much to my surprise, a pair of bunny eyes - be-doop-doo-doo - -
+|121:36:03|LMP|(Singing) When much to my surprise, a pair of bonny eyes - be-doop-doo-doo - -
 |121:36:10|CC|Sorry about that, guys, but today may be December.
 |121:36:12|CDR|Okay, the battery cover - -
 |121:36:17|LMP|(Humming) Da-da-da-da-da-da-da-dee-da-dee - -
@@ -18347,7 +18347,7 @@
 |145:48:36|CC|Copy that.
 ||||Tape 96A/23|Page 1271
 |145:48:36|CDR|Hey, Bob, from where I am, about 100 meters around the west side of the rim of this crater, the mantle on the inside of the rim turns from this gray material we've been sampling - sampling in here, to a very dark gray material. And there's a lot of orange stuff that goes down - radially down into the - into the pit of the crater.
-|145:49:03|CC|Okay. Copy that. Outstanding!
+|145:49:03|CC|Okay. Copy that. Outstanding.
 |145:49:09|LMP|Hey, Bob, those cores didn't feel like they - the follower went down at all.
 |145:49:15|CC|Okay.
 |145:49:16|LMP|Shouldn't it have gone a little bit?
@@ -22188,7 +22188,7 @@
 |165:16:32|LMP|Yes, sorry about that. But - -
 |165:16:34|CC|We can hear you loud and clear. We're just looking at rocks right now.
 ||||Tape 109A/26|Page 1541
-|165:16:41|CDR|Okay, Bob, the boulder downslope is more of a light-gray vesicular boulder. The one Jack just talked about with some of the larger white inclusions is less vesicular, and it's a - more of blue-gray rock. And if I don't fall on my tail here, I'll get -
+|165:16:41|CDR|Okay, Bob, the boulder dcwnslope is more of a light-gray vesicular boulder. The one Jack just talked about with some of the larger white inclusions is less vesicular, and it's a - more of blue-gray rock. And if I don't fall on my tail here, I'll get -
 |165:17:03|LMP|The locator is of Henry.
 |165:17:06|CC|Copy that.
 |165:17:11|CDR|Okay, let me try and get up there. Henry? We must be high enough to see something. I haven't even looked back.
@@ -29580,7 +29580,7 @@
 |212:34:45|CC|Okay. I guess the real reason for having you turn the voice switch off there is so the secretaries that are transcribing the air-to-ground here can catch up with Jack.
 |212:35:01|LMP|(Laughter) I don't believe it. Yes, I do. Okay. That's all you ever hear from me again.
 |212:36:26||BEGIN LUNAR REV 64
-|212:39:03|PAO|This is Apollo Control at 212 hours 39 minutes. During our press briefing, we had loss of signal with the Command Module. Also, we'did not have the detonation of the seismic charge. We have about 2 minutes of tape of conversation with the crew before loss of signal. We'll play that back at this time, and, of course, we'll interrupt if we should get the firing of the grenade.
+|212:39:00|PAO|This is Apollo Control at 212 hours 39 minutes. During our press briefing, we had loss of signal with the Command Module. Also, we'did not have the detonation of the seismic charge. We have about 2 minutes of tape of conversation with the crew before loss of signal. We'll play that back at this time, and, of course, we'll interrupt if we should get the firing of the grenade.
 |212:40:54|PAO|This is Apollo Control. We've just had a report from ALSEP that one of the bombs went off. We didn't see it on television, but we are beginning to see some seismic activity and we'll switch now on our television monitor to the seismic tracing, let you - let you look at that.
 |212:42:01|PAO|No one here in the Control Center observed on the television the detonation of that charge. However, we are planning to replay the tape from that time and see if a close look at the tape shows any -- any activity that we can see on the television camera.
 |212:44:22|PAO|This is Apollo Control. It's going to take several minutes before we're ready to rerun the video tape of that time segment when the explosive charge detonated. In the meantime, we'll continue with our tape playback leading up to loss of signal with America on the 63rd revolution.
