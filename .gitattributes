@@ -131,3 +131,4 @@
 /_Website/assets/wireframe.graffle/image5.png filter=lfs diff=lfs merge=lfs -text
 /_Website/apollo17_wireframe.pdf filter=lfs diff=lfs merge=lfs -text
 /assets/splash.sketch filter=lfs diff=lfs merge=lfs -text
+/_Website/assets/bg_image.sketch filter=lfs diff=lfs merge=lfs -text
