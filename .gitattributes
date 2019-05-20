@@ -184,3 +184,8 @@
 /legacy/17/assets/splash.sketch filter=lfs diff=lfs merge=lfs -text
 /Premiere[[:space:]]Pro/A11[[:space:]]Timeline[[:space:]]Reconstruction_retimed.prproj filter=lfs diff=lfs merge=lfs -text
 /Premiere[[:space:]]Pro/A11[[:space:]]Timeline[[:space:]]Reconstruction.prproj filter=lfs diff=lfs merge=lfs -text
+/_website/assets/Apollo_11_insignia.png filter=lfs diff=lfs merge=lfs -text
+/_website/assets/Apollo_Mission_Control_Isometric_Cutaway.png filter=lfs diff=lfs merge=lfs -text
+/_website/assets/MOCR_ISO.tif filter=lfs diff=lfs merge=lfs -text
+/_website/assets/splash_background.psd filter=lfs diff=lfs merge=lfs -text
+/_website/assets/splash_sidebar.psd filter=lfs diff=lfs merge=lfs -text
