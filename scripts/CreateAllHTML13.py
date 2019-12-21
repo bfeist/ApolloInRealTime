@@ -28,7 +28,7 @@ for utterance_row in utterance_reader:
             output_utterance_data_file.write(timeline_index_id + "|" + who_modified + "|" + words_modified + '|' + utterance_row[1] + "\n")
         lasttimestamp = timeline_index_id
         lastwho = who_modified
-    # print cur_row
+    # print(cur_row)
 output_utterance_data_file.close()
 
 # WRITE ALL commentary ITEMS
