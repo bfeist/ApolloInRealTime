@@ -212,3 +212,9 @@
 /legacy/11/_website/assets/splash_background.psd filter=lfs diff=lfs merge=lfs -text
 /legacy/11/_website/assets/splash_sidebar.psd filter=lfs diff=lfs merge=lfs -text
 /Premiere[[:space:]]Pro/A13[[:space:]]Timeline[[:space:]]Reconstruction.prproj filter=lfs diff=lfs merge=lfs -text
+/Premiere[[:space:]]Pro/A13[[:space:]]Timeline[[:space:]]Reconstruction_1.prproj filter=lfs diff=lfs merge=lfs -text
+/Premiere[[:space:]]Pro/A13[[:space:]]Timeline[[:space:]]Reconstruction_2.prproj filter=lfs diff=lfs merge=lfs -text
+/Premiere[[:space:]]Pro/A13[[:space:]]Timeline[[:space:]]Reconstruction_3.prproj filter=lfs diff=lfs merge=lfs -text
+/Premiere[[:space:]]Pro/A13[[:space:]]Timeline[[:space:]]Reconstruction_4.prproj filter=lfs diff=lfs merge=lfs -text
+/_website/assets/spacecraft/apollo13_rotate6.mp4 filter=lfs diff=lfs merge=lfs -text
+/_website/assets/spacecraft/apollo13_rotate7.mp4 filter=lfs diff=lfs merge=lfs -text
