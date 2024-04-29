@@ -219,3 +219,4 @@
 /_website/assets/spacecraft/apollo13_rotate6.mp4 filter=lfs diff=lfs merge=lfs -text
 /_website/assets/spacecraft/apollo13_rotate7.mp4 filter=lfs diff=lfs merge=lfs -text
 /Premiere[[:space:]]Pro/A13[[:space:]]Timeline[[:space:]]Reconstruction_5.prproj filter=lfs diff=lfs merge=lfs -text
+/Premiere[[:space:]]Pro/A13[[:space:]]Timeline[[:space:]]Reconstruction_5_1.prproj filter=lfs diff=lfs merge=lfs -text
