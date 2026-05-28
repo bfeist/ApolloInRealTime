@@ -134,3 +134,5 @@
 /_Website/assets/bg_image.sketch filter=lfs diff=lfs merge=lfs -text
 /assets/help.sketch filter=lfs diff=lfs merge=lfs -text
 /_Website/assets/apollo17_wireframe.pdf filter=lfs diff=lfs merge=lfs -text
+/MISSION_DATA/Archive/A17_papers.xlsx filter=lfs diff=lfs merge=lfs -text
+/Premiere[[:space:]]Pro/A17[[:space:]]Timeline[[:space:]]Reconstruction_1_1_2_1.prin filter=lfs diff=lfs merge=lfs -text
