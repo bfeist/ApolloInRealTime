@@ -1,38 +1,32 @@
 trace("INIT: Loading index.js");
-//app control flags
-var cStopCache = false;
+//app control flags — values now sourced from window.MISSION (see src/missions/13.config.ts).
+//Phase 2 of the migration injects window.MISSION via Vite's transformIndexHtml plugin.
+var cStopCache = window.MISSION.stopCache;
 
-var cMediaCdnRoot = "https://media.apolloinrealtime.org/A13";
-// var cMediaCdnRoot = 'https://keycdnmedia.apolloinrealtime.org/A13'; //keycdn pulling from dreamhost
-// var cMediaCdnRoot = "https://keycdnmediado.apolloinrealtime.org/A13"; //keycdn pulling from digitalocean space
+var cMediaCdnRoot = window.MISSION.mediaRoot;
 
-// var cLPIImageRoot = 'https://www.lpi.usra.edu/resources/apollo/images';
-// var cLPIImageRoot = 'https://keycdnlpicache.apolloinrealtime.org/resources/apollo/images';
-var cLPIImageRoot = cMediaCdnRoot + "/images/lpi_mirror";
+var cLPIImageRoot = window.MISSION.lpiImageRoot;
 
-// var cALSJImageRoot = 'https://www.hq.nasa.gov/alsj/a13';
-var cALSJImageRoot = cMediaCdnRoot + "/images/alsj_mirror";
+var cALSJImageRoot = window.MISSION.alsjImageRoot;
 
-var cWebCdnRoot = "";
-// var cWebCdnRoot = 'https://apollort-26f5.kxcdn.com';
+var cWebCdnRoot = window.MISSION.webCdnRoot;
 
-var cYouTubeSDorHD = 0; //0 for SD  1 for HD
+var cYouTubeSDorHD = window.MISSION.youtubeSDorHD;
 
 //constants
-// var cMissionDurationSeconds = 518400;
-var cMissionDurationSeconds = 547200; //152 hours
-var cCountdownSeconds = 127048;
-var cDefaultStartTimeId = "-000102";
-var cLaunchDate = Date.parse("1970-04-11 19:13:00 GMT");
-var cLaunchDateModern = Date.parse(Date.now().getFullYear().toString() + "-04-11 19:13:00 GMT");
-var cCountdownStartDate = Date.parse("1970-04-10 7:55:50 GMT"); //35 hours, 17 minutes, 10 seconds before launch
+var cMissionDurationSeconds = window.MISSION.missionDurationSeconds;
+var cCountdownSeconds = window.MISSION.countdownSeconds;
+var cDefaultStartTimeId = window.MISSION.defaultStartTimeId;
+var cLaunchDate = Date.parse(window.MISSION.launchDate);
+var cLaunchDateModern = Date.parse(Date.now().getFullYear().toString() + window.MISSION.launchDateModernSuffix);
+var cCountdownStartDate = Date.parse(window.MISSION.countdownStartDate);
 var cCountdownStartDateModern = Date.parse(
-  Date.now().getFullYear().toString() + "-04-10 7:55:50 GMT"
+  Date.now().getFullYear().toString() + window.MISSION.countdownStartDateModernSuffix
 );
 
-var cBackground_color_active = "#1e1e1e";
+var cBackground_color_active = window.MISSION.backgroundColorActive;
 
-var cRedactedChannelsArray = [1, 4, 10, 30, 31, 36, 37, 38, 39, 40, 41, 60];
+var cRedactedChannelsArray = window.MISSION.redactedChannels;
 
 //global control objects
 var player;
@@ -47,7 +41,7 @@ var YT = {
 //global flags
 var gApplicationReady = 0;
 var gFontsLoaded = false;
-var gFontLoaderDelay = 3; //seconds
+var gFontLoaderDelay = window.MISSION.fontLoaderDelay; //seconds
 var gSplashImageLoaded = false;
 var gMustInitNav = true;
 var gPlaybackState = "normal";
