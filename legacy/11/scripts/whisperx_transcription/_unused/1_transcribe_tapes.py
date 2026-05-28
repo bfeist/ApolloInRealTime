@@ -11,7 +11,7 @@ audio_file = "audio.mp3"
 batch_size = 16  # reduce if low on GPU mem
 compute_type = "float16"  # change to "int8" if low on GPU mem (may reduce accuracy)
 
-YOUR_HF_TOKEN = "HF_TOKEN_REDACTED"
+YOUR_HF_TOKEN = os.environ["HF_TOKEN"]  # set HF_TOKEN env var before running
 
 
 def processWavWithWhisperx(wavPath, outputFile):

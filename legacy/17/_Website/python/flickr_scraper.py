@@ -3,7 +3,7 @@
 Author: Ralph Bean <rbean@redhat.com>
 """
 
-#flickr apollo17 api key: FLICKR_KEY_REDACTED
+#flickr apollo17 api key: <redacted — use FLICKR_API_KEY env var>
 
 import ConfigParser
 import urllib
