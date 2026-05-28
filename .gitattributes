@@ -229,3 +229,11 @@
 /legacy/13/Premiere[[:space:]]Pro/A13[[:space:]]Timeline[[:space:]]Reconstruction_5_1.prproj filter=lfs diff=lfs merge=lfs -text
 /legacy/13/_website/assets/spacecraft/apollo13_rotate6.mp4 filter=lfs diff=lfs merge=lfs -text
 /legacy/13/_website/assets/spacecraft/apollo13_rotate7.mp4 filter=lfs diff=lfs merge=lfs -text
+/_website/Assets/2962_s65-55202[[:space:]]Apollo[[:space:]]program[[:space:]]patch.png filter=lfs diff=lfs merge=lfs -text
+/_website/Assets/ApolloInRealtime_home1.psd filter=lfs diff=lfs merge=lfs -text
+/_website/Assets/ApolloInRealtime_home1a.psd filter=lfs diff=lfs merge=lfs -text
+/_website/Assets/psd_exports/background_4k.png filter=lfs diff=lfs merge=lfs -text
+/legacy/landing/_website/Assets/2962_s65-55202[[:space:]]Apollo[[:space:]]program[[:space:]]patch.png filter=lfs diff=lfs merge=lfs -text
+/legacy/landing/_website/Assets/ApolloInRealtime_home1.psd filter=lfs diff=lfs merge=lfs -text
+/legacy/landing/_website/Assets/ApolloInRealtime_home1a.psd filter=lfs diff=lfs merge=lfs -text
+/legacy/landing/_website/Assets/psd_exports/background_4k.png filter=lfs diff=lfs merge=lfs -text
