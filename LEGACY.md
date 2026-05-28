@@ -7,12 +7,12 @@ of that codebase.
 
 ## Subtrees
 
-| Prefix | Source path | Original branch | Import commit |
-|--------|-------------|-----------------|---------------|
-| `legacy/17/` | `f:/_repos/Apollo17.org` | `master` | `0cec519f` |
-| `legacy/11/` | `f:/_repos/Apollo_11` | `master` | `a018d8af` |
-| `legacy/13/` | `f:/_repos/Apollo_13` | `master` | `261c3f25` |
-| `legacy/landing/` | `f:/_repos/apolloinrealtime.org` | `master` | `b01d7629` |
+| Prefix            | Source path                      | Original branch | Import commit |
+| ----------------- | -------------------------------- | --------------- | ------------- |
+| `legacy/17/`      | `f:/_repos/Apollo17.org`         | `master`        | `0cec519f`    |
+| `legacy/11/`      | `f:/_repos/Apollo_11`            | `master`        | `a018d8af`    |
+| `legacy/13/`      | `f:/_repos/Apollo_13`            | `master`        | `261c3f25`    |
+| `legacy/landing/` | `f:/_repos/apolloinrealtime.org` | `master`        | `b01d7629`    |
 
 ## Notes
 
