@@ -45,6 +45,7 @@ import type { FrameOfReferenceRange } from "../panels/telemetry/index.js";
 import { createCrewStatusPanel } from "../panels/crewStatus/index.js";
 import { createDashboardPanel } from "../panels/dashboard/index.js";
 import { createSearchPanel } from "../panels/search/index.js";
+import type { MocrvizPanel } from "../panels/mocrviz/index.js";
 
 const CONFIGS: Record<string, MissionConfig> = {
   "11": a11Config,
@@ -320,6 +321,16 @@ function buildShell(config: MissionConfig): ClockReadout {
       </p>
       <div class="row muted">last result: <code id="searchpanel-pick">(none)</code></div>
       <div id="searchpanel-host" style="max-height:320px;overflow:auto;background:#0b0b0b;border:1px solid #2a2a2a;border-radius:4px;padding:4px"></div>
+    </section>
+
+    <section class="card" id="mocrviz-card" hidden>
+      <h2>MOCRviz panel (typed, audio MVP)</h2>
+      <p class="muted">
+        Typed <code>createMocrvizPanel()</code> &mdash; channel grid +
+        HTMLAudioElement synced to historic GET. Waveform/canvas/paper.js
+        rendering and transcript loader deferred to Phase 4.5b.
+      </p>
+      <div id="mocrvizpanel-host" style="font-family:'Roboto Mono',monospace;font-size:12px"></div>
     </section>
   `;
 
@@ -1171,6 +1182,37 @@ async function mountSearchPanel(config: MissionConfig): Promise<void> {
   });
 }
 
+async function mountMocrvizPanel(config: MissionConfig): Promise<void> {
+  if (config.features?.mocrviz !== true) return;
+  if (config.id !== "11" && config.id !== "13") return;
+  const card = document.getElementById("mocrviz-card");
+  const host = document.getElementById("mocrvizpanel-host");
+  if (!(card instanceof HTMLElement) || !(host instanceof HTMLElement)) return;
+  card.hidden = false;
+  // Lazy-load the MOCRviz module so its catalog only ships when needed.
+  const mod = await import("../panels/mocrviz/index.js");
+  // The legacy MOCR audio CDN folder sits next to the mission media root.
+  // For dev, the legacy `public/{N}/MOCRviz/*` is served from the same
+  // origin so we can use a mission-relative path for the MP3 root too.
+  const audioRoot = `/${config.id}/MOCRviz/MOCR_audio`;
+  let panel: MocrvizPanel | null;
+  try {
+    panel = await mod.createMocrvizPanel({
+      container: host,
+      mission: config.id,
+      mediaRoot: `/${config.id}/`,
+      audioRoot,
+    });
+  } catch (err) {
+    host.textContent = `failed to load MOCRviz: ${String(err)}`;
+    return;
+  }
+  if (panel === null) return;
+  startTicker(config, (seconds) => {
+    panel.setClock(seconds, !host.querySelector<HTMLAudioElement>("audio")?.paused);
+  });
+}
+
 ready(() => {
   const id = readMissionId();
   if (!id) {
@@ -1201,5 +1243,6 @@ ready(() => {
   void mountCrewStatusPanel(config);
   void mountDashboardPanel(config);
   void mountSearchPanel(config);
+  void mountMocrvizPanel(config);
   console.warn(`[dev/missionHarness] ${config.name} (${id}) ready`);
 });
