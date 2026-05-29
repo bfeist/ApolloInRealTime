@@ -25,6 +25,7 @@ import { secondsToTimeStr } from "../shell/clock.js";
 import { ready } from "../dom/index.js";
 import { NavigatorRenderer } from "../engines/navigator/renderer.js";
 import { loadTocData, findClosestTocIndex } from "../data/tocData.js";
+import { createTocPanel } from "../panels/toc/index.js";
 import { loadMissionStagesData, findStageIndex } from "../data/missionStagesData.js";
 import { loadVideoSegmentData, findVideoSegmentIndex } from "../data/videoSegmentData.js";
 import { loadCommentaryData, findClosestCommentaryIndex } from "../data/commentaryData.js";
@@ -126,6 +127,17 @@ function buildShell(config: MissionConfig): ClockReadout {
     </section>
 
     <section class="card">
+      <h2>TOC panel (typed)</h2>
+      <p class="muted">
+        Typed <code>createTocPanel()</code> mounted in-page (no iframe).
+        Highlights track live historic-launch GET; click a row to log a
+        seek (no media player on this page).
+      </p>
+      <div class="row muted">last click: <code id="tocpanel-seek">(none)</code></div>
+      <div id="tocpanel-host" style="max-height:240px;overflow:auto;background:#0b0b0b;border:1px solid #2a2a2a;border-radius:4px;padding:4px"></div>
+    </section>
+
+    <section class="card">
       <h2>TOC data</h2>
       <p class="muted">
         Typed <code>loadTocData()</code> against <code>indexes/TOCData.csv</code>.
@@ -142,6 +154,7 @@ function buildShell(config: MissionConfig): ClockReadout {
         <li><code>src/shell/clock.ts</code> — live readout above</li>
         <li><code>src/engines/navigator/layout.ts</code> + <code>renderer.ts</code> — navigator above</li>
         <li><code>src/data/csvLoader.ts</code> + <code>src/data/tocData.ts</code> — TOC list above</li>
+        <li><code>src/panels/toc/index.ts</code> — TOC panel above (jQuery-free, replaces <code>TOC.html</code> iframe)</li>
         <li><code>src/data/missionStagesData.ts</code> — mission stages list above</li>
         <li><code>src/data/videoSegmentData.ts</code> — video segments readout above</li>
         <li><code>src/data/commentaryData.ts</code> — commentary readout below</li>
@@ -384,6 +397,48 @@ async function mountTocData(config: MissionConfig): Promise<void> {
     if (lastHighlighted) lastHighlighted.style.background = "";
     el.style.background = "#234";
     lastHighlighted = el;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
+/**
+ * Mount the typed {@link createTocPanel} into the dev page, driven by the
+ * live historic-launch GET. Logs clicks to the "last click" readout instead
+ * of seeking (there's no media player on this page).
+ */
+async function mountTocPanel(config: MissionConfig): Promise<void> {
+  const host = document.getElementById("tocpanel-host");
+  const seekReadout = document.getElementById("tocpanel-seek");
+  if (!(host instanceof HTMLElement)) return;
+
+  let toc: TocData;
+  try {
+    toc = await loadTocData(`/${config.id}/`);
+  } catch (err) {
+    host.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+
+  const panel = createTocPanel({
+    container: host,
+    data: toc,
+    onSeek: (timeId) => {
+      if (seekReadout) seekReadout.textContent = timeId;
+    },
+  });
+
+  const historicEpoch = Date.parse(config.launchDate);
+  let lastTimeId: string | null = null;
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findClosestTocIndex(toc, seconds);
+    const entry = idx >= 0 ? toc.entries[idx] : undefined;
+    const timeId = entry?.timeId ?? null;
+    if (timeId === lastTimeId) return;
+    panel.setActiveTimeId(timeId);
+    lastTimeId = timeId;
   };
   update();
   window.setInterval(update, 1000);
@@ -766,6 +821,7 @@ ready(() => {
   startClock(config, readout);
   void mountNavigator(config);
   void mountTocData(config);
+  void mountTocPanel(config);
   void mountMissionStages(config);
   void mountVideoSegments(config);
   void mountCommentaryData(config);
