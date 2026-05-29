@@ -24,18 +24,16 @@ import { a17Config } from "../missions/17.config.js";
 import { secondsToTimeStr } from "../shell/clock.js";
 import { ready } from "../dom/index.js";
 import { NavigatorRenderer } from "../engines/navigator/renderer.js";
-import type { PaperScopeLike } from "../engines/navigator/paperApi.js";
-import { loadTocData, findClosestTocIndex, type TocData } from "../data/tocData.js";
-import {
-  loadMissionStagesData,
-  findStageIndex,
-  type MissionStagesData,
-} from "../data/missionStagesData.js";
-import {
-  loadVideoSegmentData,
-  findVideoSegmentIndex,
-  type VideoSegmentsData,
-} from "../data/videoSegmentData.js";
+import { loadTocData, findClosestTocIndex } from "../data/tocData.js";
+import { loadMissionStagesData, findStageIndex } from "../data/missionStagesData.js";
+import { loadVideoSegmentData, findVideoSegmentIndex } from "../data/videoSegmentData.js";
+import { loadCommentaryData, findClosestCommentaryIndex } from "../data/commentaryData.js";
+import { loadUtteranceData, findClosestUtteranceIndex } from "../data/utteranceData.js";
+import { loadPhotoData, findClosestPhotoIndex } from "../data/photoData.js";
+import { loadVideoUrlData, findVideoUrlIndex } from "../data/videoUrlData.js";
+import { loadCrewStatusData, findCrewStatusIndex } from "../data/crewStatusData.js";
+import { loadTelemetryData, findTelemetryIndex } from "../data/telemetryData.js";
+import { loadOrbitData, findOrbitIndex } from "../data/orbitData.js";
 
 const CONFIGS: Record<string, MissionConfig> = {
   "11": a11Config,
@@ -146,8 +144,84 @@ function buildShell(config: MissionConfig): ClockReadout {
         <li><code>src/data/csvLoader.ts</code> + <code>src/data/tocData.ts</code> — TOC list above</li>
         <li><code>src/data/missionStagesData.ts</code> — mission stages list above</li>
         <li><code>src/data/videoSegmentData.ts</code> — video segments readout above</li>
-        <li class="muted">Add a list item here as each new engine/panel is mounted.</li>
+        <li><code>src/data/commentaryData.ts</code> — commentary readout below</li>
+        <li><code>src/data/utteranceData.ts</code> — transcript/utterance readout below</li>
+        <li><code>src/data/photoData.ts</code> — photo ticks readout below</li>
+        <li><code>src/data/videoUrlData.ts</code> — video URL segments readout below</li>
+        <li><code>src/data/crewStatusData.ts</code> — crew status readout below</li>
+        <li><code>src/data/telemetryData.ts</code> — telemetry readout below</li>
+        <li><code>src/data/orbitData.ts</code> — orbit readout below</li>
       </ul>
+    </section>
+
+    <section class="card">
+      <h2>commentary data</h2>
+      <p class="muted">
+        Typed <code>loadCommentaryData()</code> against
+        <code>indexes/commentaryData.csv</code>. Current entry at historic GET.
+      </p>
+      <div class="row muted">status: <code id="commentary-status">loading...</code></div>
+      <div class="row muted">current: <code id="commentary-current">(none)</code></div>
+    </section>
+
+    <section class="card">
+      <h2>utterance (transcript) data</h2>
+      <p class="muted">
+        Typed <code>loadUtteranceData()</code> against
+        <code>indexes/utteranceData.csv</code>. Current utterance at historic GET.
+      </p>
+      <div class="row muted">status: <code id="utterance-status">loading...</code></div>
+      <div class="row muted">current: <code id="utterance-current">(none)</code></div>
+    </section>
+
+    <section class="card">
+      <h2>photo data</h2>
+      <p class="muted">
+        Typed <code>loadPhotoData()</code> against
+        <code>indexes/photoData.csv</code>. Most recent photo at historic GET.
+      </p>
+      <div class="row muted">status: <code id="photo-status">loading...</code></div>
+      <div class="row muted">current: <code id="photo-current">(none)</code></div>
+    </section>
+
+    <section class="card">
+      <h2>video URL data</h2>
+      <p class="muted">
+        Typed <code>loadVideoUrlData()</code> against
+        <code>indexes/videoURLData.csv</code>. Current video segment at historic GET.
+      </p>
+      <div class="row muted">status: <code id="videourl-status">loading...</code></div>
+      <div class="row muted">current: <code id="videourl-current">(none)</code></div>
+    </section>
+
+    <section class="card">
+      <h2>crew status data</h2>
+      <p class="muted">
+        Typed <code>loadCrewStatusData()</code> against
+        <code>indexes/crewStatusData.csv</code>. Current crew status at historic GET.
+      </p>
+      <div class="row muted">status: <code id="crewstatus-status">loading...</code></div>
+      <div class="row muted">current: <code id="crewstatus-current">(none)</code></div>
+    </section>
+
+    <section class="card">
+      <h2>telemetry data</h2>
+      <p class="muted">
+        Typed <code>loadTelemetryData()</code> against
+        <code>indexes/telemetryData.csv</code>. Current telemetry at historic GET.
+      </p>
+      <div class="row muted">status: <code id="telemetry-status">loading...</code></div>
+      <div class="row muted">current: <code id="telemetry-current">(none)</code></div>
+    </section>
+
+    <section class="card">
+      <h2>orbit data</h2>
+      <p class="muted">
+        Typed <code>loadOrbitData()</code> against
+        <code>indexes/orbitData.csv</code>. Current orbit at historic GET (A17 only).
+      </p>
+      <div class="row muted">status: <code id="orbit-status">loading...</code></div>
+      <div class="row muted">current: <code id="orbit-current">(none)</code></div>
     </section>
   `;
 
@@ -391,6 +465,276 @@ async function mountVideoSegments(config: MissionConfig): Promise<void> {
   window.setInterval(update, 1000);
 }
 
+/**
+ * Load `indexes/commentaryData.csv` and surface count + current entry at GET.
+ */
+async function mountCommentaryData(config: MissionConfig): Promise<void> {
+  const statusEl = document.getElementById("commentary-status");
+  const currentEl = document.getElementById("commentary-current");
+  if (!statusEl || !currentEl) return;
+
+  let data: CommentaryData;
+  try {
+    data = await loadCommentaryData(`/${config.id}/`);
+  } catch (err) {
+    statusEl.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  statusEl.textContent = `${String(data.entries.length)} entries`;
+
+  const historicEpoch = Date.parse(config.launchDate);
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findClosestCommentaryIndex(data, seconds);
+    if (idx < 0) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    const entry = data.entries[idx];
+    if (!entry) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    currentEl.textContent = `${entry.timeStr}  ${entry.text.slice(0, 80)}…`;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
+/**
+ * Load `indexes/utteranceData.csv` and surface count + current utterance at GET.
+ */
+async function mountUtteranceData(config: MissionConfig): Promise<void> {
+  const statusEl = document.getElementById("utterance-status");
+  const currentEl = document.getElementById("utterance-current");
+  if (!statusEl || !currentEl) return;
+
+  let data: UtteranceData;
+  try {
+    data = await loadUtteranceData(`/${config.id}/`);
+  } catch (err) {
+    statusEl.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  statusEl.textContent = `${String(data.entries.length)} entries`;
+
+  const historicEpoch = Date.parse(config.launchDate);
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findClosestUtteranceIndex(data, seconds);
+    if (idx < 0) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    const entry = data.entries[idx];
+    if (!entry) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    currentEl.textContent = `${entry.timeStr}  [${entry.speaker}]  ${entry.words.slice(0, 80)}…`;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
+/**
+ * Load `indexes/photoData.csv` and surface count + most recent photo at GET.
+ */
+async function mountPhotoData(config: MissionConfig): Promise<void> {
+  const statusEl = document.getElementById("photo-status");
+  const currentEl = document.getElementById("photo-current");
+  if (!statusEl || !currentEl) return;
+
+  let data: PhotoData;
+  try {
+    data = await loadPhotoData(`/${config.id}/`);
+  } catch (err) {
+    statusEl.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  statusEl.textContent = `${String(data.entries.length)} entries`;
+
+  const historicEpoch = Date.parse(config.launchDate);
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findClosestPhotoIndex(data, seconds);
+    if (idx < 0) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    const entry = data.entries[idx];
+    if (!entry) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    currentEl.textContent = `${entry.timeStr}  ${entry.photoId}  ${entry.description.slice(0, 60)}`;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
+/**
+ * Load `indexes/videoURLData.csv` and surface count + current video segment at GET.
+ */
+async function mountVideoUrlData(config: MissionConfig): Promise<void> {
+  const statusEl = document.getElementById("videourl-status");
+  const currentEl = document.getElementById("videourl-current");
+  if (!statusEl || !currentEl) return;
+
+  let data: VideoUrlData;
+  try {
+    data = await loadVideoUrlData(`/${config.id}/`);
+  } catch (err) {
+    statusEl.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  statusEl.textContent = `${String(data.entries.length)} entries`;
+
+  const historicEpoch = Date.parse(config.launchDate);
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findVideoUrlIndex(data, seconds);
+    if (idx < 0) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    const entry = data.entries[idx];
+    if (!entry) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    currentEl.textContent = `#${String(idx)}  ${entry.startTimeStr} \u2192 ${entry.endTimeStr}  id=${entry.videoId}`;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
+/**
+ * Load `indexes/crewStatusData.csv` and surface count + current crew status at GET.
+ */
+async function mountCrewStatusData(config: MissionConfig): Promise<void> {
+  const statusEl = document.getElementById("crewstatus-status");
+  const currentEl = document.getElementById("crewstatus-current");
+  if (!statusEl || !currentEl) return;
+
+  let data: CrewStatusData;
+  try {
+    data = await loadCrewStatusData(`/${config.id}/`, {
+      missionDurationSeconds: config.missionDurationSeconds,
+    });
+  } catch (err) {
+    statusEl.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  statusEl.textContent = `${String(data.entries.length)} entries`;
+
+  const historicEpoch = Date.parse(config.launchDate);
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findCrewStatusIndex(data, seconds);
+    if (idx < 0) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    const entry = data.entries[idx];
+    if (!entry) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    currentEl.textContent = `${entry.startTimeStr}  ${entry.statusHtml.replace(/<[^>]*>/g, "").slice(0, 80)}`;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
+/**
+ * Load `indexes/telemetryData.csv` and surface count + current telemetry at GET.
+ */
+async function mountTelemetryData(config: MissionConfig): Promise<void> {
+  const statusEl = document.getElementById("telemetry-status");
+  const currentEl = document.getElementById("telemetry-current");
+  if (!statusEl || !currentEl) return;
+
+  let data: TelemetryData;
+  try {
+    data = await loadTelemetryData(`/${config.id}/`, {
+      missionDurationSeconds: config.missionDurationSeconds,
+    });
+  } catch (err) {
+    statusEl.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  statusEl.textContent = `${String(data.entries.length)} entries`;
+
+  const historicEpoch = Date.parse(config.launchDate);
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findTelemetryIndex(data, seconds);
+    if (idx < 0) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    const entry = data.entries[idx];
+    if (!entry) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    currentEl.textContent =
+      `v\u2295${String(entry.velocityEarth)} mph  d\u2295${String(entry.distanceEarth)} nm  ` +
+      `d\u2299${String(entry.distanceMoon)} nm  v\u2299${String(entry.velocityMoon)} mph`;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
+/**
+ * Load `indexes/orbitData.csv` and surface count + current orbit at GET.
+ * This CSV only exists for missions with lunar orbit (A17); A11/A13 will fail gracefully.
+ */
+async function mountOrbitData(config: MissionConfig): Promise<void> {
+  const statusEl = document.getElementById("orbit-status");
+  const currentEl = document.getElementById("orbit-current");
+  if (!statusEl || !currentEl) return;
+
+  let data: OrbitData;
+  try {
+    data = await loadOrbitData(`/${config.id}/`);
+  } catch (err) {
+    statusEl.textContent = `n/a (${(err as Error).message})`;
+    return;
+  }
+  if (data.entries.length === 0) {
+    statusEl.textContent = "0 entries (not applicable for this mission)";
+    return;
+  }
+  statusEl.textContent = `${String(data.entries.length)} entries`;
+
+  const historicEpoch = Date.parse(config.launchDate);
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findOrbitIndex(data, seconds);
+    if (idx < 0) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    const entry = data.entries[idx];
+    if (!entry) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    currentEl.textContent = `orbit ${entry.orbitNumber}  ${entry.startTimeStr} \u2192 ${entry.endTimeStr}`;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
 ready(() => {
   const id = readMissionId();
   if (!id) {
@@ -406,5 +750,12 @@ ready(() => {
   void mountTocData(config);
   void mountMissionStages(config);
   void mountVideoSegments(config);
+  void mountCommentaryData(config);
+  void mountUtteranceData(config);
+  void mountPhotoData(config);
+  void mountVideoUrlData(config);
+  void mountCrewStatusData(config);
+  void mountTelemetryData(config);
+  void mountOrbitData(config);
   console.warn(`[dev/missionHarness] ${config.name} (${id}) ready`);
 });
