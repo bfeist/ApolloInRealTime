@@ -298,10 +298,28 @@ async function mountNavigator(config: MissionConfig): Promise<void> {
     return;
   }
 
+  // Load the four overlay datasets concurrently. Use allSettled so that a
+  // single CSV failure doesn't prevent the navigator from mounting.
+  const baseUrl = `/${config.id}/`;
+  const [stagesResult, videoSegmentsResult, photosResult, tocResult] = await Promise.allSettled([
+    loadMissionStagesData(baseUrl, { missionDurationSeconds: config.missionDurationSeconds }),
+    loadVideoSegmentData(baseUrl),
+    loadPhotoData(baseUrl),
+    loadTocData(baseUrl),
+  ]);
+
+  const overlays: NavigatorOverlays = {
+    ...(stagesResult.status === "fulfilled" && { stages: stagesResult.value }),
+    ...(videoSegmentsResult.status === "fulfilled" && { videoSegments: videoSegmentsResult.value }),
+    ...(photosResult.status === "fulfilled" && { photos: photosResult.value }),
+    ...(tocResult.status === "fulfilled" && { toc: tocResult.value }),
+  };
+
   let currentSeconds = 0;
   const renderer = new NavigatorRenderer(paper, {
     missionDurationSeconds: config.missionDurationSeconds,
     countdownSeconds: config.countdownSeconds,
+    overlays,
     onSeek: (seconds) => {
       currentSeconds = seconds;
       if (seekReadout) seekReadout.textContent = secondsToTimeStr(seconds);
