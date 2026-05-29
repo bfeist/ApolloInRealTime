@@ -25,6 +25,17 @@ import { secondsToTimeStr } from "../shell/clock.js";
 import { ready } from "../dom/index.js";
 import { NavigatorRenderer } from "../engines/navigator/renderer.js";
 import type { PaperScopeLike } from "../engines/navigator/paperApi.js";
+import { loadTocData, findClosestTocIndex, type TocData } from "../data/tocData.js";
+import {
+  loadMissionStagesData,
+  findStageIndex,
+  type MissionStagesData,
+} from "../data/missionStagesData.js";
+import {
+  loadVideoSegmentData,
+  findVideoSegmentIndex,
+  type VideoSegmentsData,
+} from "../data/videoSegmentData.js";
 
 const CONFIGS: Record<string, MissionConfig> = {
   "11": a11Config,
@@ -94,11 +105,47 @@ function buildShell(config: MissionConfig): ClockReadout {
       <div class="row muted">last seek: <code id="nav-seek">(none)</code></div>
     </section>
 
+    <section class="card">
+      <h2>mission stages</h2>
+      <p class="muted">
+        Typed <code>loadMissionStagesData()</code> against
+        <code>indexes/missionStagesData.csv</code>. Highlighted row =
+        stage containing the live historic-launch GET.
+      </p>
+      <div class="row muted">status: <code id="stages-status">loading...</code></div>
+      <ol id="stages-list" style="margin:0;padding:0 0 0 1.5em;font-family:'Roboto Mono',monospace;font-size:12px"></ol>
+    </section>
+
+    <section class="card">
+      <h2>video segments</h2>
+      <p class="muted">
+        Typed <code>loadVideoSegmentData()</code> against
+        <code>indexes/videoSegmentData.csv</code>. Total count + the segment
+        (if any) covering the current GET.
+      </p>
+      <div class="row muted">status: <code id="segments-status">loading...</code></div>
+      <div class="row muted">current segment: <code id="segments-current">(none)</code></div>
+    </section>
+
+    <section class="card">
+      <h2>TOC data</h2>
+      <p class="muted">
+        Typed <code>loadTocData()</code> against <code>indexes/TOCData.csv</code>.
+        Highlighted row = nearest TOC entry &le; current historic-launch GET
+        (the same rule as legacy <code>scrollToClosestTOC</code>).
+      </p>
+      <div class="row muted">status: <code id="toc-status">loading...</code></div>
+      <ol id="toc-list" style="max-height:240px;overflow:auto;margin:0;padding:0 0 0 1.5em;font-family:'Roboto Mono',monospace;font-size:12px"></ol>
+    </section>
+
     <section class="card" id="modules">
       <h2>typed modules wired in</h2>
       <ul>
         <li><code>src/shell/clock.ts</code> — live readout above</li>
         <li><code>src/engines/navigator/layout.ts</code> + <code>renderer.ts</code> — navigator above</li>
+        <li><code>src/data/csvLoader.ts</code> + <code>src/data/tocData.ts</code> — TOC list above</li>
+        <li><code>src/data/missionStagesData.ts</code> — mission stages list above</li>
+        <li><code>src/data/videoSegmentData.ts</code> — video segments readout above</li>
         <li class="muted">Add a list item here as each new engine/panel is mounted.</li>
       </ul>
     </section>
@@ -202,6 +249,148 @@ async function mountNavigator(config: MissionConfig): Promise<void> {
   }, 1000);
 }
 
+/**
+ * Load `indexes/TOCData.csv` and render the parsed entries as a scrollable
+ * list. The row whose time is the most recent &le; the live historic-launch
+ * GET gets a highlight class on each clock tick.
+ */
+async function mountTocData(config: MissionConfig): Promise<void> {
+  const listEl = document.getElementById("toc-list");
+  const statusEl = document.getElementById("toc-status");
+  if (!(listEl instanceof HTMLOListElement)) return;
+
+  let toc: TocData;
+  try {
+    toc = await loadTocData(`/${config.id}/`);
+  } catch (err) {
+    if (statusEl) statusEl.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  if (statusEl) statusEl.textContent = `${String(toc.entries.length)} entries`;
+
+  for (const entry of toc.entries) {
+    const li = document.createElement("li");
+    li.id = `tocdev-${entry.timeId}`;
+    li.style.padding = "2px 4px";
+    li.style.marginLeft = entry.level === 1 ? "0" : "1em";
+    li.style.fontWeight = entry.level === 1 ? "bold" : "normal";
+    li.textContent = `${entry.timeStr}  ${entry.label}`;
+    listEl.appendChild(li);
+  }
+
+  const historicEpoch = Date.parse(config.launchDate);
+  let lastHighlighted: HTMLElement | null = null;
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findClosestTocIndex(toc, seconds);
+    if (idx < 0) return;
+    const entry = toc.entries[idx];
+    if (!entry) return;
+    const el = document.getElementById(`tocdev-${entry.timeId}`);
+    if (!el || el === lastHighlighted) return;
+    if (lastHighlighted) lastHighlighted.style.background = "";
+    el.style.background = "#234";
+    lastHighlighted = el;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
+/**
+ * Load `indexes/missionStagesData.csv` and render the parsed stages as a
+ * list. The stage covering the live historic-launch GET gets a highlight
+ * class on each clock tick.
+ */
+async function mountMissionStages(config: MissionConfig): Promise<void> {
+  const listEl = document.getElementById("stages-list");
+  const statusEl = document.getElementById("stages-status");
+  if (!(listEl instanceof HTMLOListElement)) return;
+
+  let data: MissionStagesData;
+  try {
+    data = await loadMissionStagesData(`/${config.id}/`, {
+      missionDurationSeconds: config.missionDurationSeconds,
+    });
+  } catch (err) {
+    if (statusEl) statusEl.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  if (statusEl) statusEl.textContent = `${String(data.stages.length)} stages`;
+
+  for (const [idx, stage] of data.stages.entries()) {
+    const li = document.createElement("li");
+    li.id = `stagedev-${String(idx)}`;
+    li.style.padding = "2px 4px";
+    li.textContent = `${stage.timeStr} \u2192 ${stage.endTimeStr}  ${stage.name}`;
+    li.title = stage.description;
+    listEl.appendChild(li);
+  }
+
+  const historicEpoch = Date.parse(config.launchDate);
+  let lastHighlighted: HTMLElement | null = null;
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findStageIndex(data, seconds);
+    if (idx < 0) {
+      if (lastHighlighted) {
+        lastHighlighted.style.background = "";
+        lastHighlighted = null;
+      }
+      return;
+    }
+    const el = document.getElementById(`stagedev-${String(idx)}`);
+    if (!el || el === lastHighlighted) return;
+    if (lastHighlighted) lastHighlighted.style.background = "";
+    el.style.background = "#234";
+    lastHighlighted = el;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
+/**
+ * Load `indexes/videoSegmentData.csv` and surface a count + the segment
+ * (if any) covering the live historic-launch GET.
+ */
+async function mountVideoSegments(config: MissionConfig): Promise<void> {
+  const statusEl = document.getElementById("segments-status");
+  const currentEl = document.getElementById("segments-current");
+  if (!statusEl || !currentEl) return;
+
+  let data: VideoSegmentsData;
+  try {
+    data = await loadVideoSegmentData(`/${config.id}/`);
+  } catch (err) {
+    statusEl.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  statusEl.textContent = `${String(data.segments.length)} segments`;
+
+  const historicEpoch = Date.parse(config.launchDate);
+  const update = (): void => {
+    if (!Number.isFinite(historicEpoch)) {
+      currentEl.textContent = "(launch date unparseable)";
+      return;
+    }
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    const idx = findVideoSegmentIndex(data, seconds);
+    if (idx < 0) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    const seg = data.segments[idx];
+    if (!seg) {
+      currentEl.textContent = "(none)";
+      return;
+    }
+    currentEl.textContent = `#${String(idx)}  ${seg.startTimeStr} \u2192 ${seg.endTimeStr}`;
+  };
+  update();
+  window.setInterval(update, 1000);
+}
+
 ready(() => {
   const id = readMissionId();
   if (!id) {
@@ -214,5 +403,8 @@ ready(() => {
   const readout = buildShell(config);
   startClock(config, readout);
   void mountNavigator(config);
+  void mountTocData(config);
+  void mountMissionStages(config);
+  void mountVideoSegments(config);
   console.warn(`[dev/missionHarness] ${config.name} (${id}) ready`);
 });
