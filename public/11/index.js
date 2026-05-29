@@ -1,30 +1,33 @@
 trace("INIT: Loading index.js");
-//app control flags — values now sourced from window.MISSION (see src/missions/11.config.ts).
-//Phase 2 of the migration injects window.MISSION via Vite's transformIndexHtml plugin.
-var cStopCache = window.MISSION.stopCache;
+//app control flags
+var cStopCache = false;
 
-var cMediaCdnRoot = window.MISSION.mediaRoot;
+var cMediaCdnRoot = "https://media.apolloinrealtime.org/A11";
+// var cMediaCdnRoot = 'https://keycdnmedia.apolloinrealtime.org/A11'; //keycdn pulling from dreamhost
+// var cMediaCdnRoot = "https://keycdnmediado.apolloinrealtime.org/A11"; //keycdn pulling from digitalocean space
 
-var cLPICdnRoot = window.MISSION.lpiCdnRoot;
+var cLPICdnRoot = "https://www.lpi.usra.edu";
+// var cLPICdnRoot = "https://keycdnlpicache.apolloinrealtime.org";
 
-var cWebCdnRoot = window.MISSION.webCdnRoot;
+var cWebCdnRoot = "";
+// var cWebCdnRoot = 'https://apollort-26f5.kxcdn.com';
 
-var cYouTubeSDorHD = window.MISSION.youtubeSDorHD;
+var cYouTubeSDorHD = 0; //0 for SD  1 for HD
 
 //constants
-var cMissionDurationSeconds = window.MISSION.missionDurationSeconds;
-var cCountdownSeconds = window.MISSION.countdownSeconds;
-var cDefaultStartTimeId = window.MISSION.defaultStartTimeId;
-var cLaunchDate = Date.parse(window.MISSION.launchDate);
-var cLaunchDateModern = Date.parse(Date.now().getFullYear().toString() + window.MISSION.launchDateModernSuffix);
-var cCountdownStartDate = Date.parse(window.MISSION.countdownStartDate);
+var cMissionDurationSeconds = 713311;
+var cCountdownSeconds = 74768;
+var cDefaultStartTimeId = "-000109";
+var cLaunchDate = Date.parse("1969-07-16 9:32 -400");
+var cLaunchDateModern = Date.parse(Date.now().getFullYear().toString() + "-07-16 9:32 -400");
+var cCountdownStartDate = Date.parse("1969-07-15 1:46:57 -400");
 var cCountdownStartDateModern = Date.parse(
-  Date.now().getFullYear().toString() + window.MISSION.countdownStartDateModernSuffix,
+  Date.now().getFullYear().toString() + "-07-15 1:46:57 -400",
 );
 
-var cBackground_color_active = window.MISSION.backgroundColorActive;
+var cBackground_color_active = "#1e1e1e";
 
-var cRedactedChannelsArray = window.MISSION.redactedChannels;
+var cRedactedChannelsArray = [1, 4, 10, 30, 31, 36, 37, 38, 39, 40, 41, 60];
 
 //global control objects
 var player;
@@ -39,7 +42,7 @@ var YT = {
 //global flags
 var gApplicationReady = 0;
 var gFontsLoaded = false;
-var gFontLoaderDelay = window.MISSION.fontLoaderDelay; //seconds
+var gFontLoaderDelay = 3; //seconds
 var gSplashImageLoaded = false;
 var gMustInitNav = true;
 var gPlaybackState = "normal";

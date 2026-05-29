@@ -1,5 +1,6 @@
-/* Shared styles for the per-mission /dev/{N}/ progressive shells.
-   Dev-only scaffolding; not shipped in production. */
+/* Per-mission typed-app shell at /{11,13,17}/. Diagnostic-readout look
+   while the production HTML shell + CSS (Phase 6 in the plan) gets built
+   out. The byte-for-byte legacy oracle lives at /legacy/{N}/. */
 
 body {
   font-family: ui-monospace, Menlo, Consolas, monospace;

@@ -1,26 +1,26 @@
 trace("INIT: Loading index.js");
-//app control flags — values now sourced from window.MISSION (see src/missions/17.config.ts).
-//Phase 2 of the migration injects window.MISSION via Vite's transformIndexHtml plugin.
-//Note: A17 historically used `g`-prefixed names for several of these; preserved verbatim.
-var gStopCache = window.MISSION.stopCache;
-var gCdnEnabled = window.MISSION.cdnEnabled;
-var gOffline = window.MISSION.offline;
-var cMediaCdnRoot = window.MISSION.mediaRoot;
+//app control flags
+var gStopCache = false;
+var gCdnEnabled = false;
+var gOffline = false;
+var cMediaCdnRoot = "https://media.apolloinrealtime.org/A17";
+// var cMediaCdnRoot = 'https://keycdnmedia.apolloinrealtime.org/A17'; //keycdn pulling from dreamhost
+// var cMediaCdnRoot = "https://keycdnmediado.apolloinrealtime.org/A17"; //keycdn pulling from digitalocean space
 
 //constants
-var cMissionDurationSeconds = window.MISSION.missionDurationSeconds;
-var cCountdownSeconds = window.MISSION.countdownSeconds;
-var gDefaultStartTimeId = window.MISSION.defaultStartTimeId;
-var gFontLoaderDelay = window.MISSION.fontLoaderDelay; //seconds
-var gBackground_color_active = window.MISSION.backgroundColorActive;
+var cMissionDurationSeconds = 1100980;
+var cCountdownSeconds = 9442;
+var gDefaultStartTimeId = "-000105";
+var gFontLoaderDelay = 3; //seconds
+var gBackground_color_active = "#222222";
 
-var cLaunchDate = Date.parse(window.MISSION.launchDate);
+var cLaunchDate = Date.parse("1972-12-07 0:33 -500");
 var cLaunchDateModern = Date.parse(
-  Date.now().getFullYear().toString() + window.MISSION.launchDateModernSuffix
+  Date.now().getFullYear().toString() + "-12-07 0:33 -500"
 );
-var cCountdownStartDate = Date.parse(window.MISSION.countdownStartDate);
+var cCountdownStartDate = Date.parse("1972-12-06 9:55:39pm -500");
 var cCountdownStartDateModern = Date.parse(
-  Date.now().getFullYear().toString() + window.MISSION.countdownStartDateModernSuffix
+  Date.now().getFullYear().toString() + "-12-06 9:55:39pm -500"
 );
 
 //global control objects
