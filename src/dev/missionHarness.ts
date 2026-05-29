@@ -35,6 +35,16 @@ import { loadVideoUrlData, findVideoUrlIndex } from "../data/videoUrlData.js";
 import { loadCrewStatusData, findCrewStatusIndex } from "../data/crewStatusData.js";
 import { loadTelemetryData, findTelemetryIndex } from "../data/telemetryData.js";
 import { loadOrbitData, findOrbitIndex } from "../data/orbitData.js";
+import { createCommentaryPanel } from "../panels/commentary/index.js";
+import { createTranscriptPanel } from "../panels/transcript/index.js";
+import { createPhotoPanel } from "../panels/photo/index.js";
+import type { PhotoUrlResolver } from "../panels/photo/index.js";
+import { parseAsRollImg } from "../panels/photo/index.js";
+import { createTelemetryPanel } from "../panels/telemetry/index.js";
+import type { FrameOfReferenceRange } from "../panels/telemetry/index.js";
+import { createCrewStatusPanel } from "../panels/crewStatus/index.js";
+import { createDashboardPanel } from "../panels/dashboard/index.js";
+import { createSearchPanel } from "../panels/search/index.js";
 
 const CONFIGS: Record<string, MissionConfig> = {
   "11": a11Config,
@@ -164,6 +174,13 @@ function buildShell(config: MissionConfig): ClockReadout {
         <li><code>src/data/crewStatusData.ts</code> — crew status readout below</li>
         <li><code>src/data/telemetryData.ts</code> — telemetry readout below</li>
         <li><code>src/data/orbitData.ts</code> — orbit readout below</li>
+        <li><code>src/panels/commentary/index.ts</code> — commentary panel below</li>
+        <li><code>src/panels/transcript/index.ts</code> — transcript panel below</li>
+        <li><code>src/panels/photo/index.ts</code> — photo panel below</li>
+        <li><code>src/panels/telemetry/index.ts</code> — telemetry panel below</li>
+        <li><code>src/panels/crewStatus/index.ts</code> — crew status panel below</li>
+        <li><code>src/panels/dashboard/index.ts</code> — dashboard panel below</li>
+        <li><code>src/panels/search/index.ts</code> — search panel below</li>
       </ul>
     </section>
 
@@ -235,6 +252,74 @@ function buildShell(config: MissionConfig): ClockReadout {
       </p>
       <div class="row muted">status: <code id="orbit-status">loading...</code></div>
       <div class="row muted">current: <code id="orbit-current">(none)</code></div>
+    </section>
+
+    <section class="card">
+      <h2>commentary panel (typed)</h2>
+      <p class="muted">
+        Typed <code>createCommentaryPanel()</code>. Highlight tracks the
+        nearest commentary entry to the live GET; click a row to log a seek.
+      </p>
+      <div class="row muted">last click: <code id="commentarypanel-seek">(none)</code></div>
+      <div id="commentarypanel-host" style="max-height:240px;overflow:auto;background:#0b0b0b;border:1px solid #2a2a2a;border-radius:4px;padding:4px"></div>
+    </section>
+
+    <section class="card">
+      <h2>transcript panel (typed)</h2>
+      <p class="muted">
+        Typed <code>createTranscriptPanel()</code>. Highlight tracks the
+        nearest utterance to the live GET; click to log a seek.
+      </p>
+      <div class="row muted">last click: <code id="transcriptpanel-seek">(none)</code></div>
+      <div id="transcriptpanel-host" style="max-height:240px;overflow:auto;background:#0b0b0b;border:1px solid #2a2a2a;border-radius:4px;padding:4px"></div>
+    </section>
+
+    <section class="card">
+      <h2>photo panel (typed)</h2>
+      <p class="muted">
+        Typed <code>createPhotoPanel()</code>. Per-mission URL resolver
+        picks the legacy LPI / ALSJ / media-CDN paths. Click a thumb to
+        log a seek and load the full image below.
+      </p>
+      <div class="row muted">last click: <code id="photopanel-seek">(none)</code></div>
+      <div id="photopanel-host" style="max-height:320px;overflow:auto;background:#0b0b0b;border:1px solid #2a2a2a;border-radius:4px;padding:4px"></div>
+    </section>
+
+    <section class="card">
+      <h2>telemetry panel (typed)</h2>
+      <p class="muted">
+        Typed <code>createTelemetryPanel()</code> &mdash; interpolated velocity
+        + distance at the live GET.
+      </p>
+      <div id="telemetrypanel-host" style="font-family:'Roboto Mono',monospace;font-size:12px"></div>
+    </section>
+
+    <section class="card">
+      <h2>crew status panel (typed)</h2>
+      <p class="muted">
+        Typed <code>createCrewStatusPanel()</code> &mdash; current status +
+        wake-up countdown when sleeping.
+      </p>
+      <div id="crewstatuspanel-host" style="font-family:'Roboto Mono',monospace;font-size:12px"></div>
+    </section>
+
+    <section class="card">
+      <h2>dashboard panel (typed)</h2>
+      <p class="muted">
+        Typed <code>createDashboardPanel()</code> &mdash; composes mission day,
+        stage, crew status, telemetry.
+      </p>
+      <div id="dashboardpanel-host" style="font-family:'Roboto Mono',monospace;font-size:12px"></div>
+    </section>
+
+    <section class="card">
+      <h2>search panel (typed)</h2>
+      <p class="muted">
+        Typed <code>createSearchPanel()</code> &mdash; searches transcript +
+        commentary + photo captions. Type 2+ chars to match.
+      </p>
+      <div class="row muted">last result: <code id="searchpanel-pick">(none)</code></div>
+      <div id="searchpanel-host" style="max-height:320px;overflow:auto;background:#0b0b0b;border:1px solid #2a2a2a;border-radius:4px;padding:4px"></div>
     </section>
   `;
 
@@ -808,6 +893,284 @@ async function mountOrbitData(config: MissionConfig): Promise<void> {
   window.setInterval(update, 1000);
 }
 
+// ── typed panel mounts ────────────────────────────────────────────────────────
+
+/**
+ * Helper used by every panel mount: produces a 1-Hz `tick()` function that
+ * computes current historic-launch seconds and feeds it to `cb`.
+ */
+function startTicker(config: MissionConfig, cb: (seconds: number) => void): void {
+  const historicEpoch = Date.parse(config.launchDate);
+  const tick = (): void => {
+    if (!Number.isFinite(historicEpoch)) return;
+    const seconds = Math.trunc((Date.now() - historicEpoch) / 1000);
+    cb(seconds);
+  };
+  tick();
+  window.setInterval(tick, 1000);
+}
+
+async function mountCommentaryPanel(config: MissionConfig): Promise<void> {
+  const host = document.getElementById("commentarypanel-host");
+  const seekEl = document.getElementById("commentarypanel-seek");
+  if (!(host instanceof HTMLElement)) return;
+  let data: CommentaryData;
+  try {
+    data = await loadCommentaryData(`/${config.id}/`);
+  } catch (err) {
+    host.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  const panel = createCommentaryPanel({
+    container: host,
+    data,
+    onSeek: (timeId) => {
+      if (seekEl) seekEl.textContent = timeId;
+    },
+  });
+  let last: string | null = null;
+  startTicker(config, (seconds) => {
+    const idx = findClosestCommentaryIndex(data, seconds);
+    const entry = idx >= 0 ? data.entries[idx] : undefined;
+    const timeId = entry?.timeId ?? null;
+    if (timeId === last) return;
+    panel.setActiveTimeId(timeId);
+    last = timeId;
+  });
+}
+
+async function mountTranscriptPanel(config: MissionConfig): Promise<void> {
+  const host = document.getElementById("transcriptpanel-host");
+  const seekEl = document.getElementById("transcriptpanel-seek");
+  if (!(host instanceof HTMLElement)) return;
+  let data: UtteranceData;
+  try {
+    data = await loadUtteranceData(`/${config.id}/`);
+  } catch (err) {
+    host.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  const panel = createTranscriptPanel({
+    container: host,
+    data,
+    onSeek: (timeId) => {
+      if (seekEl) seekEl.textContent = timeId;
+    },
+  });
+  let last: string | null = null;
+  startTicker(config, (seconds) => {
+    const idx = findClosestUtteranceIndex(data, seconds);
+    const entry = idx >= 0 ? data.entries[idx] : undefined;
+    const timeId = entry?.timeId ?? null;
+    if (timeId === last) return;
+    panel.setActiveTimeId(timeId);
+    last = timeId;
+  });
+}
+
+/**
+ * Build the per-mission photo URL resolver. Mirrors the legacy
+ * `populatePhotoGallery` / `loadPhotoHtml` switching logic across A11,
+ * A13, and A17.
+ */
+function photoResolverFor(config: MissionConfig): PhotoUrlResolver {
+  const mediaRoot = config.mediaRoot;
+  return (entry) => {
+    if (config.id === "13") {
+      const lpi = config.lpiImageRoot ?? "";
+      const alsj = config.alsjImageRoot ?? "";
+      const parts = parseAsRollImg(entry.photoId, "13");
+      if (parts) {
+        return {
+          thumb: `${lpi}/thumb/AS13/${parts.rollNum}/${parts.imgNum}.jpg`,
+          full: `${lpi}/medium/AS13/${parts.rollNum}/${parts.imgNum}.jpg`,
+        };
+      }
+      if (entry.supportingFilename !== "") {
+        const url = `${mediaRoot}/images/supporting/${entry.supportingFilename}`;
+        return { thumb: url, full: url };
+      }
+      const url = `${alsj}/${entry.filename}`;
+      return { thumb: url, full: url };
+    }
+
+    if (config.id === "11") {
+      const lpi = config.lpiCdnRoot ?? "";
+      const parts = parseAsRollImg(entry.photoId, "11");
+      if (parts) {
+        const thumb = `${lpi}/resources/apollo/images/thumb/AS11/${parts.rollNum}/${parts.imgNum}.jpg`;
+        return { thumb, full: thumb };
+      }
+      if (entry.supportingFilename !== "") {
+        return {
+          thumb: entry.supportingFilename,
+          full: entry.supportingFilename,
+        };
+      }
+      const url = `${mediaRoot}/images/NASA_photos/${entry.filename}`;
+      return { thumb: url, full: url };
+    }
+
+    // A17: media CDN with flight/supporting routing.
+    // Legacy templates (see legacy-src/17/index.html photoGalleryTemplate /
+    // photoTemplate + populatePhotoGallery / loadPhotoHtml in index.js):
+    //   thumb: {cdn}/images/{flight|supporting}/100/{filename}.jpg
+    //   full:  {cdn}/images/flight/4175/{filename}.jpg
+    //          {cdn}/images/supporting/2100/{filename}.jpg
+    // The discriminant is the mag code (CSV field 2, our `entry.filename`).
+    // When present → flight, image base name is `AS17-{photoId}`.
+    // When empty → supporting, image base name is the bare `photoId`.
+    const isFlight = entry.filename !== "";
+    const subdir = isFlight ? "flight" : "supporting";
+    const base = isFlight ? `AS17-${entry.photoId}` : entry.photoId;
+    const fullSize = isFlight ? "4175" : "2100";
+    return {
+      thumb: `${mediaRoot}/images/${subdir}/100/${base}.jpg`,
+      full: `${mediaRoot}/images/${subdir}/${fullSize}/${base}.jpg`,
+    };
+  };
+}
+
+async function mountPhotoPanel(config: MissionConfig): Promise<void> {
+  const host = document.getElementById("photopanel-host");
+  const seekEl = document.getElementById("photopanel-seek");
+  if (!(host instanceof HTMLElement)) return;
+  let data: PhotoData;
+  try {
+    data = await loadPhotoData(`/${config.id}/`);
+  } catch (err) {
+    host.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  const panel = createPhotoPanel({
+    container: host,
+    data,
+    resolveUrls: photoResolverFor(config),
+    onSeek: (timeId) => {
+      if (seekEl) seekEl.textContent = timeId;
+    },
+  });
+  let last: string | null = null;
+  startTicker(config, (seconds) => {
+    const idx = findClosestPhotoIndex(data, seconds);
+    const entry = idx >= 0 ? data.entries[idx] : undefined;
+    const timeId = entry?.timeId ?? null;
+    if (timeId === last) return;
+    panel.setActiveTimeId(timeId);
+    last = timeId;
+  });
+}
+
+/**
+ * Per-mission frame-of-reference ranges. A13 has a hardcoded Moon window
+ * around lunar approach (075:06:08 → 085:59:00 in the legacy code); A11
+ * and A17 default to all-Earth here pending the real per-mission ranges.
+ */
+function frameRangesFor(config: MissionConfig): FrameOfReferenceRange[] {
+  if (config.id === "13") {
+    return [{ startSeconds: 270368, endSeconds: 309540, frame: "Moon" }];
+  }
+  return [];
+}
+
+async function mountTelemetryPanel(config: MissionConfig): Promise<void> {
+  const host = document.getElementById("telemetrypanel-host");
+  if (!(host instanceof HTMLElement)) return;
+  let data: TelemetryData;
+  try {
+    data = await loadTelemetryData(`/${config.id}/`, {
+      missionDurationSeconds: config.missionDurationSeconds,
+    });
+  } catch (err) {
+    host.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  const panel = createTelemetryPanel({
+    container: host,
+    data,
+    frameRanges: frameRangesFor(config),
+  });
+  startTicker(config, (seconds) => {
+    panel.update(seconds);
+  });
+}
+
+async function mountCrewStatusPanel(config: MissionConfig): Promise<void> {
+  const host = document.getElementById("crewstatuspanel-host");
+  if (!(host instanceof HTMLElement)) return;
+  let data: CrewStatusData;
+  try {
+    data = await loadCrewStatusData(`/${config.id}/`, {
+      missionDurationSeconds: config.missionDurationSeconds,
+    });
+  } catch (err) {
+    host.textContent = `failed: ${(err as Error).message}`;
+    return;
+  }
+  const panel = createCrewStatusPanel({ container: host, data });
+  startTicker(config, (seconds) => {
+    panel.update(seconds);
+  });
+}
+
+async function mountDashboardPanel(config: MissionConfig): Promise<void> {
+  const host = document.getElementById("dashboardpanel-host");
+  if (!(host instanceof HTMLElement)) return;
+  const totalDays = Math.ceil(config.missionDurationSeconds / 86400);
+  const [stagesR, crewR, telemR] = await Promise.allSettled([
+    loadMissionStagesData(`/${config.id}/`, {
+      missionDurationSeconds: config.missionDurationSeconds,
+    }),
+    loadCrewStatusData(`/${config.id}/`, {
+      missionDurationSeconds: config.missionDurationSeconds,
+    }),
+    loadTelemetryData(`/${config.id}/`, {
+      missionDurationSeconds: config.missionDurationSeconds,
+    }),
+  ]);
+  if (
+    stagesR.status !== "fulfilled" ||
+    crewR.status !== "fulfilled" ||
+    telemR.status !== "fulfilled"
+  ) {
+    host.textContent = "failed to load dashboard data";
+    return;
+  }
+  const panel = createDashboardPanel({
+    container: host,
+    stages: stagesR.value,
+    crewStatus: crewR.value,
+    telemetry: telemR.value,
+    telemetryFrameRanges: frameRangesFor(config),
+    totalMissionDays: totalDays,
+  });
+  startTicker(config, (seconds) => {
+    panel.update(seconds);
+  });
+}
+
+async function mountSearchPanel(config: MissionConfig): Promise<void> {
+  const host = document.getElementById("searchpanel-host");
+  const pickEl = document.getElementById("searchpanel-pick");
+  if (!(host instanceof HTMLElement)) return;
+  const [uttR, comR, photoR] = await Promise.allSettled([
+    loadUtteranceData(`/${config.id}/`),
+    loadCommentaryData(`/${config.id}/`),
+    loadPhotoData(`/${config.id}/`),
+  ]);
+  createSearchPanel({
+    container: host,
+    sources: {
+      ...(uttR.status === "fulfilled" && { utterances: uttR.value }),
+      ...(comR.status === "fulfilled" && { commentary: comR.value }),
+      ...(photoR.status === "fulfilled" && { photos: photoR.value }),
+    },
+    onResult: (item) => {
+      if (pickEl) pickEl.textContent = `${item.kind} @${item.timeStr}`;
+    },
+  });
+}
+
 ready(() => {
   const id = readMissionId();
   if (!id) {
@@ -831,5 +1194,12 @@ ready(() => {
   void mountCrewStatusData(config);
   void mountTelemetryData(config);
   void mountOrbitData(config);
+  void mountCommentaryPanel(config);
+  void mountTranscriptPanel(config);
+  void mountPhotoPanel(config);
+  void mountTelemetryPanel(config);
+  void mountCrewStatusPanel(config);
+  void mountDashboardPanel(config);
+  void mountSearchPanel(config);
   console.warn(`[dev/missionHarness] ${config.name} (${id}) ready`);
 });
